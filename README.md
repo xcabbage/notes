@@ -104,8 +104,6 @@ str(df)
 ggplot(df, aes(x=heightIn, y=weightLb))+ geom_point()+geom_smooth(method='lm', se = TRUE)
 ggplot(df, aes(x=heightIn, y=weightLb))+ geom_point()+geom_smooth(method='lm', se = TRUE, formula=y ~ poly(x,5)) # formula to method
 
-#######################################
-
 str(shoes)
 plot(shoes)
 
@@ -203,9 +201,106 @@ plot(kn)
 str(kn)
 table(kn, test$Species)
 
-kn <- knn(train[,1:4, with = FALSE], test[,1:4, with = FALSE], cl = train$Species, k = 5) # nof neighbors
+kn <- knn(train[,1:4, with = FALSE], test[,1:4, with = FALSE], cl = train$Species, k = 5) # nof neighbors def=1
+
+library(NbClust)
+str(ir)
+
+ir[,-5, with = FALSE]
+
+?NbClust
+NbClust(ir[,-5, with = FALSE], method = 'complete') # optimal nof clusters mathematically
+
+library(rpart)
+?rpart
+ct <- rpart(Species ~ ., data = train) # '.' use all columns except written
+plot(ct)
+text(ct)
+library(rpart.plot)
+rpart.plot(ct)
+plot(as.party(ct))
+
+predict(ct) # probabilities
+predict(ct, type = 'class') # only labels with highes prob.
+table(predict(ct, type = 'class', nnewdata = test))
 
 
+############ try to predict sex ##############################
+df <- heightweight
+
+i <- sample(1:237, 150)
+str(df)
+setDT(df)
 
 
-              
+set.seed(42)
+
+train <- df[i]
+test <- df[-i]
+
+
+#or reorder
+# df <- df[order(runif(nrow(df))),1]
+
+
+NbClust(df[,-1, with = FALSE], method = 'complete') # optimal nof clusters mathematically
+
+kn1 <- knn(train[,2:5, with = FALSE], test[,2:5, with = FALSE], cl = train$sex) # nof neighbors def=1
+
+str(kn)
+table(kn1, test$sex)
+
+fit <- lm(sex ~ ., train)
+
+table(fit)
+predict(fit, test)
+
+# km1 <- kmeans(train[,2:5, with = FALSE], 2)
+# table(km1$cluster, test$sex)
+
+str(km1)
+str(train)
+
+cor(df$heightIn, df$weightLb)
+
+ct <- rpart(sex ~ heightIn + weightLb, data = df, minsplit= 1)
+
+table(predict(ct, type = 'class'), df$sex) # overfitting
+plot(ct); text(ct)
+
+nrow(df)
+
+ct <- rpart(sex ~ heightIn + weightLb, data = train, minsplit = 5) # how many obs.at levels
+
+table(train$sex, predict(ct, type = 'class')) # overfitting
+table(test$sex, predict(ct, type = 'class', newdata = test)) # overfitting
+
+
+?rpart.control
+
+plot(ct); text(ct)
+
+setDF(ir)
+str(ir)
+prcomp(ir[,1:4]) # PCA comp for each column, SD>1 better, higher component more interactions
+# first some can identify outliers if U set a treshold, higher comp. can show above a treshold the never possibel interactions
+# we have 1 colomn that is most relative (PC1) dev is the highest
+# rotation matrx
+prcomp(ir[,1:4], scale = TRUE)  #scaling included
+str(ir)
+
+pc <- prcomp(ir[,1:4], scale = TRUE)
+plot(pc)
+plot(pc$x[,1:2], col = ir$Species) # bettet to use for GMB,or RF to make an artificial feature space
+
+str(eurodist)
+eurodist
+
+prcomp(eurodist)
+
+cmdscale(eurodist)
+m<-cmdscale(eurodist)
+plot(cmdscale(eurodist), type = 'n') # 
+text(m[,1], -m[,2], labels(eurodist)) # concentrate the n*n matrix to n*2 much easier -> make relative coordinates
+
+
