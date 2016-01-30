@@ -104,6 +104,108 @@ str(df)
 ggplot(df, aes(x=heightIn, y=weightLb))+ geom_point()+geom_smooth(method='lm', se = TRUE)
 ggplot(df, aes(x=heightIn, y=weightLb))+ geom_point()+geom_smooth(method='lm', se = TRUE, formula=y ~ poly(x,5)) # formula to method
 
+#######################################
+
+str(shoes)
+plot(shoes)
+
+df <- shoes
+
+ggplot(shoes, aes(x=size, y=math))+ geom_point()+geom_smooth(method='lm', se = TRUE)
+
+cor(df) # correlation coeff
+
+# strange correlations
+# https://www.google.com/trends/correlate
+
+lm(formula= math ~ x, data = df)
+lm(size ~ x, df)
+residuals(lm(size ~ x, df))
+residuals(lm(math ~ x, df))
+cor(residuals(lm(size ~ x, df)), residuals(lm(math ~ x, df))) #partial corr [-1,1]
+install.packages("psych")
+library(psych)
+
+partial.r(df, 2:3, 4)
+
+str(iris)
+plot(iris)
+summary(fit)
+
+fit <- lm(Sepal.Width ~ Sepal.Length, iris)
+plot(fit)
+
+plot(iris$Sepal.Length, iris$Sepal.Width)
+abline(fit, col = 'red')
+plot(iris$Sepal.Length, iris$Sepal.Width, col = iris$Species)
+
+
+fit <- lm(Sepal.Width ~ Sepal.Length + Species, iris) # create species flags as it is a factor!
+fit
+
+ggplot(iris, aes(x=Sepal.Length, y=Sepal.Width, color = Species)) + geom_smooth(method = 'lm', se = TRUE) + geom_point()
+# clustering
+
+?hclust
+str(iris)
+str(dist(iris)) #dist each obs.
+str(dist(iris[,1:4]))
+
+dm<-dist(iris[,1:4])
+str(dm)
+hclust(dm)  # slow for large datasets
+plot(hclust(dm))
+hc <- hclust(dm)
+
+str(hc)
+
+#cutting clusters
+rect.hclust(hc, k=3, border = 'red')
+cn <- cutree(hc, k = 3) # cluster number at given k cluster cutting
+
+table(cn, iris$Species) # counfusion matrix with fact
+
+
+?dist
+#before distancing, standardize to 0
+?scale
+scale(iris$Petal.Width) 
+
+km <- kmeans(iris[,1:4], 3)
+str(km$cluster)
+table(km$cluster, iris$Species) # counfusion matrix with fact
+
+plot(iris$Sepal.Length, iris$Sepal.Width, col = iris$Species)
+sample()
+
+ir <- data.table(datasets::iris)
+set.seed(42)
+
+i <- sample(1:150, 100)
+ir[i, .N, by = Species]
+ir[-i, .N, by = Species]
+
+ir[, rnd := runif(150)]
+setorder(ir, rnd)
+ir[1:100]
+train <- ir[i]
+test <- ir[-i]
+str(train)
+library(class)
+?knn
+train[,1:4] # DT syntax missleading...
+train[, 1:4, with = FALSE]
+train[,.N]
+kn <- knn(train[,1:4, with = FALSE], test[,1:4, with = FALSE], cl = train$Species) # we should not include Speacies! 1:4 not enough...
+
+plot(kn)
+
+str(kn)
+table(kn, test$Species)
+
+kn <- knn(train[,1:4, with = FALSE], test[,1:4, with = FALSE], cl = train$Species, k = 5) # nof neighbors
+
+
 
 
               
