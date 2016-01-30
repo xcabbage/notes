@@ -30,6 +30,7 @@ ggplot(flightsa, aes(x= dest, y = avg_del)) + geom_bar() #error - countolni akar
 ?geom_bar
 ggplot(flightsa, aes(x= dest, y = avg_del)) + geom_bar(stat="identity") #char shows ABC order
 
+
 flightsa <- flights[origin == 'JFK', .(avg_del = mean(arr_delay, na.rm=TRUE)), by = dest][order(avg_del)]
                                                                                           # naming field  list='.'
 
@@ -46,6 +47,17 @@ ggplot(flightsa, aes(x = dest, y = avg_del)) + geom_boxplot()
 ggplot(flights, aes(x = dest, y = arr_delay)) + geom_boxplot()
 # data.table- peldakat megcsinalni!!!!!
 
+ggplot(flightsa, aes(x = dest, y = avg_del)) + geom_bar(stat="identity")
+
+setorder(flightsa, avg_del)
+flightsa
+flightsa$dest
+flightsa[, dest := factor(dest, levels = flightsa$dest)]
+str(flightsa$dest)
+
+ggplot(flightsa, aes(x = dest, y = avg_del)) + geom_bar(stat="identity")
+
+ggplot(flightsa, aes(x = dest, y = avg_del)) + geom_bar(stat="identity") + coord_flip() + ggtitle("Average akármi") + xlab("foobar")
 
 
 ################################
